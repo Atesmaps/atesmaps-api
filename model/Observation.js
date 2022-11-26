@@ -1,20 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const pointSchema = new mongoose.Schema({
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point',
-      required: true
-    },
-    coordinates: {
-      type: [Number],
-      index: '2dsphere',
-      required: true
-    }
-});
-
 const observationSchema = new Schema({
     title: {
         type: String,
@@ -24,17 +10,10 @@ const observationSchema = new Schema({
         type: Date,
         required: false
     },
-    location: {
-        type: pointSchema,
-        required: true
+    location:{
+        latitude: String,
+        longitude: String,
     },
-    whenObsTaken:{
-        type: Number
-    },
-    // location:{
-    //     latitude: Number,
-    //     longitude: Number,
-    // },
     status: {
         type: Number,
         default: 0,
@@ -47,10 +26,7 @@ const observationSchema = new Schema({
         type: Boolean,
         default: true
     },
-    directoryId: {
-        type: String,
-    },
-    images: [{
+    pictures: [{
         type: String,
     }],
     observationTypes: {
@@ -61,9 +37,6 @@ const observationSchema = new Schema({
             },
             values: {
                 ridingQuality: {
-                    type: Number,
-                },
-                activityType: {
                     type: Number,
                 },
                 snowConditions: {
@@ -101,7 +74,7 @@ const observationSchema = new Schema({
                         type: Boolean,
                         default: false,
                     },
-                    shade:{
+                    convex:{
                         type: Boolean,
                         default: false,
                     },
@@ -121,14 +94,14 @@ const observationSchema = new Schema({
                         type: Boolean,
                         default: false,
                     },
-                    clear:{
+                    cut:{
                         type: Boolean,
                         default: false,
                     },
                     sunny:{
                         type: Boolean,
                         default: false,
-                    },
+                    }
                 },
                 avoidedSlopeTypes:{
                     alpine: {
@@ -173,14 +146,6 @@ const observationSchema = new Schema({
                         type: Boolean,
                         default: false,
                     },
-                    intenseSnow:{
-                        type: Boolean,
-                        default: false,
-                    },
-                    weakSnow:{
-                        type: Boolean,
-                        default: false,
-                    },
                     windy:{
                         type: Boolean,
                         default: false,
@@ -214,13 +179,9 @@ const observationSchema = new Schema({
                     tempChanges:{
                         type: Boolean,
                         default: false,
-                    },
-                    snowAccumulation:{
-                        type: Boolean,
-                        default: false,
-                    },
+                    }
                 },
-                comments:{
+                otherComments:{
                     type: String,   
                 }
             }
@@ -237,13 +198,7 @@ const observationSchema = new Schema({
                 when: {
                     type: Number,
                 },
-                geoAccuracy: {
-                    type: Number,
-                },
                 amount: {
-                    type: Number
-                },
-                obsType:{
                     type: Number
                 },
                 dangerLevel:{
@@ -303,63 +258,6 @@ const observationSchema = new Schema({
                 },
                 windExposure: {
                     type: Number
-                },
-                comments:{
-                    type: String,   
-                }
-            }
-        },
-        accident: {
-            status: {
-                type: Boolean,
-                default: false
-            },
-            values: {
-                activityType:{
-                    type: Number
-                },
-                customActivityType:{
-                    type: String, 
-                },
-                numOfPeople:{
-                    type: String, 
-                },
-                numOfBuried:{
-                    type: String, 
-                },
-                numOfPartiallyBuried:{
-                    type: String, 
-                },
-                numOfInjured:{
-                    type: String, 
-                },
-                numOfSeverlyInjured:{
-                    type: String, 
-                },
-                numOfDead:{
-                    type: String, 
-                },
-                crackDepth:{
-                    type: String, 
-                },
-                terrainType:{
-                    type: Number
-                },
-                terrainTraps:{
-                    type: Number
-                },
-                avalancheSize:{
-                    size_1:{type: Boolean},
-                    size_2:{type: Boolean},
-                    size_3:{type: Boolean},
-                    size_4:{type: Boolean},
-                    size_5:{type: Boolean},
-                },
-                comments:{
-                    type: String,   
-                },
-                contactMe: {
-                    type: Boolean,
                 }
             }
         },
@@ -370,9 +268,6 @@ const observationSchema = new Schema({
             },
             values: {
                 observationType:{
-                    type: Number
-                },
-                geoAccuracy:{
                     type: Number
                 },
                 altitudeRange: {
@@ -398,18 +293,13 @@ const observationSchema = new Schema({
                     type: String
                 },
                 woumpfs: {
-                    type: Number
+                    type: Boolean
                 },
-                cracks: {
-                    type: Number
+                sounds: {
+                    type: Boolean
                 },
                 layerSnowType: {
-                    type_1: {type: Boolean},
-                    type_2: {type: Boolean},
-                    type_3: {type: Boolean},
-                    type_4: {type: Boolean},
-                    type_5: {type: Boolean},
-                    type_6: {type: Boolean},
+                    type: Number
                 },
                 footPenetration: {
                     type: String
@@ -427,12 +317,7 @@ const observationSchema = new Schema({
                     type: Number
                 },
                 fractureType: {
-                    type_1: {type: Boolean},
-                    type_2: {type: Boolean},
-                    type_3: {type: Boolean},
-                    type_4: {type: Boolean},
-                    type_5: {type: Boolean},
-                    type_6: {type: Boolean},
+                    type: Number
                 },
                 fractureDepth:{
                     type: String
@@ -440,10 +325,7 @@ const observationSchema = new Schema({
                 layerHardness: {
                     type: Number
                 },
-                weakLayerHardness:{
-                    type: Number
-                },
-                snowHumidity:{
+                layerHumidity:{
                     type: Number
                 },
                 snowType:{
@@ -456,6 +338,12 @@ const observationSchema = new Schema({
             }
         },
         weather: {
+            status: {
+                type: Boolean,
+                default: false
+            }
+        },
+        incident: {
             status: {
                 type: Boolean,
                 default: false
