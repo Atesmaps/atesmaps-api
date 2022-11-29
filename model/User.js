@@ -7,10 +7,6 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
-    blocked: {
-        type: Boolean,
-        default: false
-    },
     username: {
         type: String,
         required: false
@@ -33,10 +29,6 @@ const userSchema = new Schema({
     },
     birthday: {
         type: Date,
-        required: false
-    },
-    age: {
-        type: Number,
         required: false
     },
     instagraProfile:{
@@ -79,7 +71,7 @@ const userSchema = new Schema({
         Editor: Number,
         Admin: Number
     },
-    resetPasswordToken: String,
+    restPasswordToken: String,
     resetPasswordExpires: Date,
     password: {
         type: String,
