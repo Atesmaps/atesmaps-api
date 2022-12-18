@@ -9,8 +9,6 @@ const handleLogin = async (req, res) => {
     const foundUser = await User.findOne({ email: email.toLowerCase() }).exec();
    
     if (!foundUser) return res.sendStatus(401); //Unauthorized 
-    // if (foundUser.blocked) return res.status(409).json({message: 'Esta cuenta está sido borrada'});
-
     console.log('----- Checking password -----');
     const match = await bcrypt.compare(pwd, foundUser.password);
     console.log(match);
@@ -58,15 +56,7 @@ const handleLogin = async (req, res) => {
 }
 
 const showVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.0.0' });
+    res.status(200).json({ 'version': '0.2' });
 }
 
-const showIosVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.0.2' });
-}
-
-const showAndroidVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.6' });
-}
-
-module.exports = { handleLogin, showVersion, showIosVersion, showAndroidVersion};
+module.exports = { handleLogin, showVersion};
