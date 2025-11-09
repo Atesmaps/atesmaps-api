@@ -65,11 +65,13 @@ app.use('/auth', require('./routes/auth'));
 app.use('/refresh', require('./routes/refresh'));
 app.use('/geo', require('./routes/geodata'));
 app.use('/logout', require('./routes/logout'));
+app.use('/lauegi', require('./routes/api/lauegi'));
 
 app.use(verifyJWT);
 app.use('/employees', require('./routes/api/employees'));
 app.use('/users', require('./routes/api/users'));
 app.use('/observations', require('./routes/api/observations'));
+
 
 app.all('*', (req, res) => {
     res.status(404);
