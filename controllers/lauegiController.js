@@ -29,8 +29,9 @@ const getFeatures = async (req, res) => {
         return res.status(401).json({ "message": 'Unauthorized: Invalid or missing API key.' });
     }
 
-    const box = [[parseFloat(req.query.transformedbbox[0]),parseFloat(req.query.transformedbbox[1])],[parseFloat(req.query.transformedbbox[2]),parseFloat(req.query.transformedbbox[3])]];
-    //const box = [[parseFloat(req.query.transformedbbox[3]),parseFloat(req.query.transformedbbox[2])],[parseFloat(req.query.transformedbbox[1]),parseFloat(req.query.transformedbbox[0])]];
+
+    //const box = [[parseFloat(req.query.transformedbbox[0]),parseFloat(req.query.transformedbbox[1])],[parseFloat(req.query.transformedbbox[2]),parseFloat(req.query.transformedbbox[3])]];
+    const box = [[parseFloat(0.6402078369020309),parseFloat(42.582312510993745)],[parseFloat(1.0246806029244835),parseFloat(42.868976713679956)]];
     //  console.log(`$and:[{date: { $gte: ${new Date(req.query.startDate)}, $lte: ${new Date(req.query.endDate)}}, location: {
     //     $geoWithin: {
     //         $box: ${box},
