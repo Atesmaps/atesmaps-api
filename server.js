@@ -65,7 +65,7 @@ app.use('/auth', require('./routes/auth'));
 app.use('/refresh', require('./routes/refresh'));
 app.use('/geo', require('./routes/geodata'));
 app.use('/logout', require('./routes/logout'));
-app.use('/lauegi', require('./routes/api/lauegi'));
+app.use('/aran', require('./routes/api/lauegi'));
 
 app.use(verifyJWT);
 app.use('/employees', require('./routes/api/employees'));
