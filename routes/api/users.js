@@ -3,8 +3,10 @@ const router = express.Router();
 const usersController = require('../../controllers/usersController');
 const observationsController = require('../../controllers/observationsController');
 const subscriptionsController = require('../../controllers/subscriptionsController');
+const notificationsController = require('../../controllers/notificationsController')
 const ROLES_LIST = require('../../config/roles_list');
 const verifyRoles = require('../../middleware/verifyRoles');
+const { route } = require('../root');
 
 router.route('/')
     .get(verifyRoles(ROLES_LIST.Admin), usersController.getAllUsers)
@@ -25,6 +27,10 @@ router.route('/:id')
 
 router.route('/:id')
     .get(verifyRoles(ROLES_LIST.User), usersController.getUser);
+
+router.route('/register-token', notificationsController.registerToken)
+
+
 
 
 
