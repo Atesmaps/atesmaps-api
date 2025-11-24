@@ -2,7 +2,7 @@ require('dotenv').config(); // Loads variables from .env
 const mongoose = require('mongoose');
 
 // ⚠️ Ensure this path points to your actual User model definition
-const User = require('./model/User'); 
+const User = require('../model/User'); 
 
 // Grab the connection string from your environment variables
 const MONGO_URI = process.env.DATABASE_URI;
