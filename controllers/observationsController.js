@@ -3,11 +3,61 @@ const User = require('../model/User');
 const GeoJSON = require('geojson');
 const proj4 = require('proj4');
 const { format } = require('date-fns');
+//const { sendNotification } = require('../services/notificationService');
 
 
 const getAllObservations = async (req, res) => {
-    const observations = await Observation.find().sort({date: 'desc'});
-    //if (!observations) return res.status(204).json({ 'message': 'No observations found' });
+    let observations = null;
+    console.log(req.query);
+    if(req.query.days && req.query.long && req.query.lat ){
+        //Both days & location filter.
+        var endDate = new Date();
+        var startDate = new Date();
+        var day = endDate.getDate() - Number(req.query.days);
+        startDate.setDate(day);
+        // observations = await Observation.find({
+        //     $and:[
+        //         {date: { $gte: startDate }},
+        //         {location: {$near: 
+        //             {$geometry: {
+        //                 type: 'Point',
+        //                 coordinates: [req.query.long, req.query.lat]
+        //             },
+        //             $maxDistance: 80000,
+        //         }}}
+        //     ]}).sort({date: 'desc'}).populate('user');
+        observations = await Observation.find({
+                    date: { $gte: startDate }  
+                }).sort({date: 'desc'}).populate('user');
+    }else if(req.query.days && !(req.query.long && req.query.lat)){
+        //Only days filter.
+        var endDate = new Date();
+        var startDate = new Date();
+        var day = endDate.getDate() - Number(req.query.days);
+        startDate.setDate(day);
+        observations = await Observation.find({
+            $and:[
+                {date: { $gte: startDate }}
+            ]}).sort({date: 'desc'}).populate('user');
+    }else if(!req.query.days && (req.query.long && req.query.lat)){
+        //Only Location filter.
+        // observations = await Observation.find({
+        //     $and:[
+        //         {location: {$near: 
+        //             {$geometry: {
+        //                 type: 'Point',
+        //                 coordinates: [req.query.long, req.query.lat]
+        //             },
+        //             $maxDistance: 80000,
+        //         }}}
+        //     ]}).sort({date: 'desc'}).populate('user');
+        observations = await Observation.find({}).sort({date: 'desc'}).populate('user');
+    }else{
+        //No filter.
+        observations = await Observation.find().sort({date: 'desc'}).populate('user');
+    }
+    // console.log(observations.length)
+    // if (!observations) return res.status(204).json({ 'message': 'No observations found' });
     res.json(observations);
 }
 
@@ -44,6 +94,28 @@ const createNewObservation = async (req, res) => {
         // console.log(req.body.observationTypes.snowpack);
         user.observations.push(result.toObject({ getters: true }));
         let saveResult = await user.save();
+
+        // Notification logic:
+        // const usersToNotify = await User.find(
+        //     { _id: { $ne: user.id } }, // $ne = Not Equal
+        //     'deviceTokens' // Only select the 'deviceTokens' field for efficiency
+        // );
+
+        // Flatten the array of tokens from all users
+        const allTargetTokens = usersToNotify
+            .flatMap(user => user.deviceTokens) // Get all token objects
+            .map(tokenDoc => tokenDoc.token); // Get just the token string
+
+        // Send the notification
+        if (allTargetTokens.length > 0) {
+            // sendNotification(
+            //     allTargetTokens,
+            //     "New Observation Posted", // Title
+            //     `${newObservation.user.username} just posted a new observation.`, // Body
+            //     { observationId: newObservation._id.toString() } // Custom data
+            // );
+        }
+
         // console.log(saveResult)
         return res.status(201).json({'observations': user.observations, 'observationId': result._id});
     } catch (err) {

@@ -2,6 +2,18 @@ const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const crypto = require('crypto');
 
+const DeviceTokenSchema = new Schema({
+    token: {
+        type: String,
+        required: true,
+    },
+    os: {
+        type: String,
+        required: true,
+        enum: ['ios', 'android']
+    }
+}, {_id: false});
+
 const userSchema = new Schema({
     status: {
         type: Boolean,
@@ -85,12 +97,58 @@ const userSchema = new Schema({
         type: String,
         required: true
     },
+    socialLogin: {
+        type: Boolean,
+        default: false
+    },
+    license:{
+        pro: {
+            type: Boolean, 
+            default: false
+        },
+        expiresAt:{
+            type: Number,
+            required: false
+        },
+        last_invoice: {
+            type: String,
+            required: false,
+        },
+        stripeId: {
+            type: String,
+            unique: true,
+        },
+    },
+    // pro: {
+    //     type: Boolean, 
+    //     default: false
+    // },
+    // expiresAt:{
+    //     type: Number,
+    //     required: false
+    // },
+    googleUserId: String,
+    appleUserId: String,
     refreshToken: String,
     observations: [{
         type: Schema.Types.ObjectId,
         ref: "Observation",
         required: false
-    }]
+    }],
+    tracks: [{
+        type: Schema.Types.ObjectId,
+        ref: "Track",
+        required: false
+    }],
+    // subscriptions: [{
+    //     type: Schema.Types.ObjectId,
+    //     ref: "Subscription",
+    //     required: false
+    // }]
+    deviceTokens: [DeviceTokenSchema]
+},
+{
+  timestamps: true
 });
 
 userSchema.methods.generatePasswordReset = function() {

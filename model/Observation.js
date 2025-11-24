@@ -12,7 +12,8 @@ const pointSchema = new mongoose.Schema({
       type: [Number],
       index: '2dsphere',
       required: true
-    }
+    },
+    // index: '2dsphere',
 });
 
 const observationSchema = new Schema({
@@ -26,15 +27,12 @@ const observationSchema = new Schema({
     },
     location: {
         type: pointSchema,
+        index: '2dsphere',
         required: true
     },
     whenObsTaken:{
         type: Number
     },
-    // location:{
-    //     latitude: Number,
-    //     longitude: Number,
-    // },
     status: {
         type: Number,
         default: 0,
@@ -65,6 +63,9 @@ const observationSchema = new Schema({
                 },
                 activityType: {
                     type: Number,
+                },
+                customActivityType:{
+                    type: String, 
                 },
                 snowConditions: {
                     deepPowder:{
@@ -318,6 +319,10 @@ const observationSchema = new Schema({
                 activityType:{
                     type: Number
                 },
+                accidentOrigin:{
+                    type: Number,
+                    default: 1
+                },
                 customActivityType:{
                     type: String, 
                 },
@@ -436,6 +441,16 @@ const observationSchema = new Schema({
                 },
                 fractureDepth:{
                     type: String
+                },fractureTypeCt: {
+                    type_1: {type: Boolean},
+                    type_2: {type: Boolean},
+                    type_3: {type: Boolean},
+                    type_4: {type: Boolean},
+                    type_5: {type: Boolean},
+                    type_6: {type: Boolean},
+                },
+                fractureDepthCt:{
+                    type: String
                 },
                 layerHardness: {
                     type: Number
@@ -459,6 +474,64 @@ const observationSchema = new Schema({
             status: {
                 type: Boolean,
                 default: false
+            },
+            values:{
+                snowIntensity: {
+                    type: Number
+                },
+                stormDate:{
+                    type: String,
+                },
+                precipitationType: {
+                    type: Number
+                },
+                skyCondition: {
+                    type: Number
+                },
+                temp: {
+                    type: String
+                },
+                rainIntensity: {
+                    type: Number
+                },
+                tempChange: {
+                    type: Number
+                },
+                maxTemp: {
+                    type: String
+                },
+                minTemp: {
+                    type: String
+                },
+                windSpeed: {
+                    type: Number
+                },
+
+                windCarry: {
+                    type: Number
+                },
+                snowAccumulation: {
+                    type: String
+                },
+                rainAccumulation: {
+                    type: String
+                },
+                snowAccumulation24: {
+                    type: String
+                },
+                orientation:{
+                    N:{type: Boolean},
+                    NE:{type: Boolean},
+                    E:{type: Boolean},
+                    SE:{type: Boolean},
+                    S:{type: Boolean},
+                    SO:{type: Boolean},
+                    O:{type: Boolean},
+                    NO:{type: Boolean},
+                },
+                comments:{
+                    type: String
+                }
             }
         }
     },

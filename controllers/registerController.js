@@ -5,8 +5,8 @@ const mailer = require('../config/mailer');
 
  
 const handleRequestNewPassword = async (req, res) => {
-    // console.log('params: ')
-     console.log(req.body);
+    console.log('params: ')
+    console.log(req.body);
     const {email} = req.body;
     // console.log(await User.find({}));
     const user = await User.findOne({ email: email.toLowerCase() }).exec();
@@ -37,20 +37,25 @@ const handleRequestNewPassword = async (req, res) => {
             res.status(500).json({error});
         }
     }else{
-        res.sendStatus(404); 
+        //res.sendStatus(401); 
+        res.status(404).send({ 'message': 'user do not exist' });
     }
 
 
 }
 
 const handleNewUser = async (req, res) => {
-    const { email, userName, pwd } = req.body;
+    const { email, userName, pwd, name, lastName, gender, age, snowEducationLevel, snowExperienceLevel} = req.body;
+    console.log(req.body)
     if (!email || !pwd) return res.status(400).json({ 'message': 'email and password are required.' });
 
     // check for duplicate usernames in the db
     const duplicate = await User.findOne({ email: email.toLowerCase() }).exec();
     // if (duplicate.blocked) return res.status(409).json({message: 'Esta cuenta está siendo borrada'});
-    if (duplicate) return res.sendStatus(409); //Conflict 
+    if (duplicate) {
+        console.log('Duplicated email...')
+        return res.status(409).send({ 'message': 'user already exists' }); //Conflict 
+    }
 
     try {
         //encrypt the password
@@ -60,12 +65,16 @@ const handleNewUser = async (req, res) => {
         const user = await User.create({
             "username": userName?.toLowerCase()?.replace(/[^a-zA-Z0-9_ ]/g, ''),
             "email": email?.toLowerCase(),
-            "password": hashedPwd
+            "password": hashedPwd,
+            "name":name,
+            "lastName":lastName,
+            "gender":gender,
+            "age":age,
+            "snowEducationLevel":snowEducationLevel,
+            "snowExperienceLevel":snowExperienceLevel
         });
 
         //------ Login right after register   -----
-
-
         const roles = Object.values(user.roles).filter(Boolean);
         // create JWTs
         const accessToken = jwt.sign(
