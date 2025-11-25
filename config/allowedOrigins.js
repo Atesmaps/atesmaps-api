@@ -4,7 +4,7 @@ const allowedOrigins = [
     'https://experimental.atesmaps.org',
     'http://localhost:5000',
     'https://obs.atesmaps.org',
-    'https://map.lauegi.maladeta.studio/'
+    'https://map.lauegi.maladeta.studio'
 ];
 
 module.exports = allowedOrigins;
