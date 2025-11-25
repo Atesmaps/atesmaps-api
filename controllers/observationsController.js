@@ -3,7 +3,7 @@ const User = require('../model/User');
 const GeoJSON = require('geojson');
 const proj4 = require('proj4');
 const { format } = require('date-fns');
-//const { sendNotification } = require('../services/notificationService');
+const { sendNotification } = require('../services/notificationService');
 
 
 const getAllObservations = async (req, res) => {
@@ -96,25 +96,25 @@ const createNewObservation = async (req, res) => {
         let saveResult = await user.save();
 
         // Notification logic:
-        // const usersToNotify = await User.find(
-        //     { _id: { $ne: user.id } }, // $ne = Not Equal
-        //     'deviceTokens' // Only select the 'deviceTokens' field for efficiency
-        // );
+        const usersToNotify = await User.find(
+            { _id: { $ne: user.id } }, // $ne = Not Equal
+            'deviceTokens' // Only select the 'deviceTokens' field for efficiency
+        );
 
         // Flatten the array of tokens from all users
-        // const allTargetTokens = usersToNotify
-        //     .flatMap(user => user.deviceTokens) // Get all token objects
-        //     .map(tokenDoc => tokenDoc.token); // Get just the token string
+        const allTargetTokens = usersToNotify
+            .flatMap(user => user.deviceTokens) // Get all token objects
+            .map(tokenDoc => tokenDoc.token); // Get just the token string
 
         // Send the notification
-        // if (allTargetTokens.length > 0) {
-        //     sendNotification(
-        //         allTargetTokens,
-        //         "New Observation Posted", // Title
-        //         `${newObservation.user.username} just posted a new observation.`, // Body
-        //         { observationId: newObservation._id.toString() } // Custom data
-        //     );
-        // }
+        if (allTargetTokens.length > 0) {
+            sendNotification(
+                allTargetTokens,
+                "New Observation Posted", // Title
+                `${newObservation.user.username} just posted a new observation.`, // Body
+                { observationId: newObservation._id.toString() } // Custom data
+            );
+        }
 
         // console.log(saveResult)
         return res.status(201).json({'observations': user.observations, 'observationId': result._id});
