@@ -34,7 +34,7 @@ jobs:
         run: |
           echo "ACCESS_TOKEN_SECRET=${{ secrets.API_ACCESS_TOKEN_SECRET }}" > .env
           echo "REFRESH_TOKEN_SECRET=${{ secrets.API_REFRESH_TOKEN_SECRET }}" >> .env
-          echo "DATABASE_URI=\"${{ secrets.API_DATABASE_URI }}\"" >> .env
+          echo "DATABASE_URI=\"${{ secrets.API_DATABASE_URI_DEV }}\"" >> .env
           echo "GOOGLE_ANDROID_CLIENT_ID=\"${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}\"" >> .env
           echo "GOOGLE_IOS_CLIENT_ID=\"${{ secrets.GOOGLE_IOS_CLIENT_ID }}\"" >> .env
           echo "MAILER_SMTP=${{ secrets.API_MAILER_SMTP }}" >> .env
