@@ -24,25 +24,8 @@ app.use(logger);
 // and fetch cookies credentials requirement
 app.use(credentials);
 
-// app.use(cors);
-//app.use(cors());
-
-// app.use(function(req, res, next) {
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-//     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-//     res.setHeader('Access-Control-Allow-Credentials', true);
-//     next(); 
-// });
-
 // Cross Origin Resource Sharing
-//app.use(cors(corsOptions));
-//  app.use(cors({
-//     "origin": "*",
-//     "methods": "GET,HEAD,PUT,PATCH,POST,DELETE",
-//     "preflightContinue": false,
-//     "optionsSuccessStatus": 204
-//   }));
+app.use(cors(corsOptions));
 
 // built-in middleware to handle urlencoded form data
 app.use(express.urlencoded({ extended: false }));
@@ -75,6 +58,11 @@ app.use('/observations', require('./routes/api/observations'));
 
 
 app.all('*', (req, res) => {
+    // 1. SAFETY BRAKE: If a controller already sent data, STOP.
+    if (res.headersSent) {
+        return; 
+    }
+    // 2. Normal 404 Logic
     res.status(404);
     if (req.accepts('html')) {
         res.sendFile(path.join(__dirname, 'views', '404.html'));
@@ -84,6 +72,17 @@ app.all('*', (req, res) => {
         res.type('txt').send("404 Not Found");
     }
 });
+
+// app.all('*', (req, res) => {
+//     res.status(404);
+//     if (req.accepts('html')) {
+//         res.sendFile(path.join(__dirname, 'views', '404.html'));
+//     } else if (req.accepts('json')) {
+//         res.json({ "error": "404 Not Found" });
+//     } else {
+//         res.type('txt').send("404 Not Found");
+//     }
+// });
 
 app.use(errorHandler);
 
