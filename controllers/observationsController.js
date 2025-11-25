@@ -102,19 +102,19 @@ const createNewObservation = async (req, res) => {
         // );
 
         // Flatten the array of tokens from all users
-        const allTargetTokens = usersToNotify
-            .flatMap(user => user.deviceTokens) // Get all token objects
-            .map(tokenDoc => tokenDoc.token); // Get just the token string
+        // const allTargetTokens = usersToNotify
+        //     .flatMap(user => user.deviceTokens) // Get all token objects
+        //     .map(tokenDoc => tokenDoc.token); // Get just the token string
 
         // Send the notification
-        if (allTargetTokens.length > 0) {
-            // sendNotification(
-            //     allTargetTokens,
-            //     "New Observation Posted", // Title
-            //     `${newObservation.user.username} just posted a new observation.`, // Body
-            //     { observationId: newObservation._id.toString() } // Custom data
-            // );
-        }
+        // if (allTargetTokens.length > 0) {
+        //     sendNotification(
+        //         allTargetTokens,
+        //         "New Observation Posted", // Title
+        //         `${newObservation.user.username} just posted a new observation.`, // Body
+        //         { observationId: newObservation._id.toString() } // Custom data
+        //     );
+        // }
 
         // console.log(saveResult)
         return res.status(201).json({'observations': user.observations, 'observationId': result._id});
