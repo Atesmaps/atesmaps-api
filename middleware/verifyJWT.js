@@ -18,8 +18,10 @@ const verifyJWT = (req, res, next) => {
                 console.log(err);
                 return res.sendStatus(403); //invalid token
             } 
+            console.log(req.userId );
             req.user = decoded.UserInfo.username;
             req.roles = decoded.UserInfo.roles;
+            req.userId = decoded.UserInfo.userId;
             next();
         }
     );

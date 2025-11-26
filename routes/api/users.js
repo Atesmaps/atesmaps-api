@@ -28,7 +28,7 @@ router.route('/:id')
 router.route('/:id')
     .get(verifyRoles(ROLES_LIST.User), usersController.getUser);
 
-router.route('/register-token', notificationsController.registerToken)
+router.route('/register-device-token').post(notificationsController.registerToken)
 
 
 

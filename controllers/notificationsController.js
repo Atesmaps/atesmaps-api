@@ -4,7 +4,7 @@ const User = require('../model/User');
 
 const registerToken = async (req, res) => {
     const { token, os } = req.body;
-    const userId = req.user.id; // Get user ID from your auth middleware
+    const userId = req.userId; // Get user ID from your auth middleware
 
     if (!token || !os) {
         return res.status(400).json({ message: 'Token and OS are required.' });
@@ -15,10 +15,10 @@ const registerToken = async (req, res) => {
 
         // We use $addToSet to add this token object to the array
         // ONLY if it doesn't already exist. This prevents duplicates.
-        await User.findByIdAndUpdate(userId, {
+        let result = await User.findByIdAndUpdate(userId, {
             $addToSet: { deviceTokens: newToken }
         });
-
+        
         res.status(200).json({ message: 'Token registered successfully.' });
 
     } catch (error) {
