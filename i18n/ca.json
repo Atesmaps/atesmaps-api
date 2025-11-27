@@ -1,0 +1,5 @@
+{
+  "new_obs_title": "Nova observació de {{user}}",
+  "new_obs_body": "🔍 {{title}} @ {{location}} - Mira-ho al mapa!",
+  "check_map": "Mira-ho al mapa! ❄️ "
+}

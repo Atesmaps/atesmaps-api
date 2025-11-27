@@ -4,6 +4,9 @@ const GeoJSON = require('geojson');
 const proj4 = require('proj4');
 const { format } = require('date-fns');
 const { sendNotification } = require('../services/notificationService');
+const { getClosestRegion } = require('../helpers/locationHelper');
+const { t } = require('../helpers/translationHelper');
+
 
 
 const getAllObservations = async (req, res) => {
@@ -89,35 +92,87 @@ const createNewObservation = async (req, res) => {
     req.body.user = user;
     req.body.status = 1; 
     req.body.location = { type: 'Point', coordinates: [  req.body.location.longitude, req.body.location.latitude] };
+
     try {
-        const result = await Observation.create(req.body);
-        // console.log(req.body.observationTypes.snowpack);
-        user.observations.push(result.toObject({ getters: true }));
+        const observation = await Observation.create(req.body);
+        
+        user.observations.push(observation.toObject({ getters: true }));
         let saveResult = await user.save();
 
-        // Notification logic:
-        const usersToNotify = await User.find(
-            { _id: { $ne: user.id } }, // $ne = Not Equal
-            'deviceTokens' // Only select the 'deviceTokens' field for efficiency
-        );
-
-        // Flatten the array of tokens from all users
-        const allTargetTokens = usersToNotify
-            .flatMap(user => user.deviceTokens) // Get all token objects
-            .map(tokenDoc => tokenDoc.token); // Get just the token string
-
-        // Send the notification
-        if (allTargetTokens.length > 0) {
-            sendNotification(
-                allTargetTokens,
-                "New Observation Posted", // Title
-                `${newObservation.user.username} just posted a new observation.`, // Body
-                { observationId: newObservation._id.toString() } // Custom data
-            );
+        const notificationData = {
+            id: observation.id,
+            title: observation.title,
+            author: user.username,
+            location: ""
         }
 
+        const region = getClosestRegion(req.body.location);
+            
+        if (region) {
+            notificationData.location = `${region.region.name}`;
+         
+        } else {
+            const lat = req.body.location.coordinates[1].toFixed(4); 
+            const lon = req.body.location.coordinates[0].toFixed(4);
+            notificationData.location = `${lat}, ${lon}`;
+        }
+
+
+        // Notification logic:
+        //remember to change $eq to $ne
+        await User.updateMany(
+            { _id: { $ne: user._id} },
+            { $inc: { unreadCount: 1 } }
+        );
+        //remember to change $eq to $ne
+        const notificationBatches = await User.aggregate([
+            { $match: { _id: { $ne: user._id} } },
+            { $unwind: "$deviceTokens" },
+            {
+                $group: {
+                    _id: {
+                        lang: { $ifNull: ["$deviceTokens.language", "es"] },
+                        badge: "$unreadCount"
+                    },
+                    tokens: { $addToSet: "$deviceTokens.token" }
+                }
+            }
+        ]);
+
+        const pushPromises = notificationBatches.map(batch => {
+            const { lang, badge } = batch._id;
+            const tokens = batch.tokens;
+
+            if (!tokens.length) return;
+
+            // Translate based on batch language
+            const title = t(lang, 'new_obs_title',{
+                 user: notificationData.author, 
+            });
+            const body = t(lang, 'new_obs_body', { 
+                title: notificationData.title, 
+                location: notificationData.location 
+            });
+
+            //console.log(`Sending [${lang}] (Badge: ${badge}) to ${tokens.length} devices.`);
+
+            return sendNotification(
+                tokens,
+                title,
+                body,
+                { observationId: notificationData.id.toString() },
+                badge
+            );
+        });
+
+        // 6. Execute all tasks in background (Fire and Forget)
+        Promise.all(pushPromises).catch(err => console.error("Push Error:", err));
+
+
+        console.log(r)
+
         // console.log(saveResult)
-        return res.status(201).json({'observations': user.observations, 'observationId': result._id});
+        return res.status(201).json({'observations': user.observations, 'observationId': observation._id});
     } catch (err) {
         console.log('error')
         console.error(err);

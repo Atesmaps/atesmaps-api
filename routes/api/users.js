@@ -30,6 +30,8 @@ router.route('/:id')
 
 router.route('/register-device-token').post(notificationsController.registerToken)
 
+router.route('/reset-badge').post(notificationsController.resetBadgeCount);
+
 
 
 
