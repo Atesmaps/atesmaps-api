@@ -7,7 +7,7 @@ admin.initializeApp({
 });
 
 // ⚠️ PASTE YOUR DEVICE TOKEN HERE
-const registrationToken = 'cU-E5yMJekwao9s3CPCCy6:APA91bGP0PISUBR-eEQF5Erf87Qin-E5jyBxfPnciiTH7tXGQRxekVOrrrXc0XqGxYmC9vAVNhVomttld4K8Nvggq83kUgMJVioK-CAASyAAAemxoxuQND8'; 
+const registrationToken = 'c-jO0OqJQRarqsf2ZxDJjo:APA91bHdDXMMlOuZMMA-lLkc2yM2bDQzIWAa13qS0T8oIjaGqNmcMx8VNDy-fNtfuoMKRExvFAxfEkVdu47ro0lpVEiT3qESVBE-biSmv_HMn2bzXY5L0gw'; 
 
 const message = {
   notification: {

@@ -28,9 +28,10 @@ router.route('/:id')
 router.route('/:id')
     .get(verifyRoles(ROLES_LIST.User), usersController.getUser);
 
-router.route('/register-device-token').post(notificationsController.registerToken)
-
+router.route('/register-device-token').post(notificationsController.registerToken);
+router.route('/unregister-token').post(notificationsController.unregisterToken);
 router.route('/reset-badge').post(notificationsController.resetBadgeCount);
+
 
 
 

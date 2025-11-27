@@ -43,10 +43,11 @@ async function sendNotification(targetTokens, title, body, data = {}, badgeCount
             },
         },
         android: { // Android specific
+            priority: 'high',
             notification: {
                 sound: 'default',
                 // This MUST match the Channel ID you create on the client (React Native)
-                channel_id: 'atesmaps-notifications', 
+                channel_id: 'atesmaps-channel-id', 
                 notification_count: badgeCount
             },
         },

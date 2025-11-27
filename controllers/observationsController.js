@@ -85,7 +85,7 @@ const getUserObservations = async (req, res) => {
 }
 
 const createNewObservation = async (req, res) => {
-    // console.log('This is a new oservation body received...')
+    console.log('This is a new oservation body received...')
     // console.log(req.body.observationTypes.quick);
     const user = await User.findOne({ _id: req.body.user });
     if (!user) return res.status(204).json({ 'message': 'No users found' });
@@ -139,6 +139,8 @@ const createNewObservation = async (req, res) => {
             }
         ]);
 
+        console.log(notificationBatches);
+
         const pushPromises = notificationBatches.map(batch => {
             const { lang, badge } = batch._id;
             const tokens = batch.tokens;
@@ -167,9 +169,6 @@ const createNewObservation = async (req, res) => {
 
         // 6. Execute all tasks in background (Fire and Forget)
         Promise.all(pushPromises).catch(err => console.error("Push Error:", err));
-
-
-        console.log(r)
 
         // console.log(saveResult)
         return res.status(201).json({'observations': user.observations, 'observationId': observation._id});
