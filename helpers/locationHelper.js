@@ -1,5 +1,5 @@
 // 1. Your locations array (I've imported the structure you provided)
-export const locationsData = [
+const locationsData = [
     {}, // Index 0 is empty/placeholder
     { id: 1, name: "Andorra Centro", latitude: 42.53510694555712, longitude: 1.5529746979350716, latitudeDelta: 0.7170, longitudeDelta: 0.7170 },
     { id: 2, name: "Andorra Norte", latitude: 42.58508140442987, longitude: 1.6121730217316999, latitudeDelta: 0.7170, longitudeDelta: 0.7170 },
@@ -59,7 +59,7 @@ function deg2rad(deg) {
  * @param {Object} inputLocation - GeoJSON object { type: 'Point', coordinates: [lon, lat] }
  * @returns {Object} The closest region object with its index.
  */
-export const getClosestRegion = (inputLocation) => {
+const getClosestRegion = (inputLocation) => {
     if (!inputLocation || !inputLocation.coordinates) {
         return null;
     }
@@ -109,4 +109,9 @@ export const getClosestRegion = (inputLocation) => {
         region: closestRegion,
         distanceKm: minDistance
     };
+};
+
+module.exports = {
+    locationsData,
+    getClosestRegion
 };

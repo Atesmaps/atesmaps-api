@@ -2,14 +2,38 @@
 const admin = require('firebase-admin');
 
 try {
-    const serviceAccount = require('../serviceAccountKey.json'); // Your secret key
+    let serviceAccount;
+
+    // 1. Check if we are in Production (Env Var exists)
+    if (process.env.FIREBASE_SERVICE_ACCOUNT_BASE64) {
+        // Decode Base64 back to JSON string, then parse to Object
+        const buffer = Buffer.from(process.env.FIREBASE_SERVICE_ACCOUNT_BASE64, 'base64');
+        serviceAccount = JSON.parse(buffer.toString('utf-8'));
+        console.log("✅ Firebase Initialized from Environment Variable");
+    } 
+    // 2. Fallback to File (Local Development)
+    else {
+        serviceAccount = require('../serviceAccountKey.json');
+        console.log("✅ Firebase Initialized from Local File");
+    }
+
     admin.initializeApp({
       credential: admin.credential.cert(serviceAccount)
     });
-    console.log("Firebase Admin SDK initialized.");
+
 } catch (error) {
-    console.error("Failed to initialize Firebase Admin SDK:", error.message);
+    console.error("❌ Failed to initialize Firebase Admin SDK:", error.message);
 }
+
+// try {
+//     const serviceAccount = require('../serviceAccountKey.json'); // Your secret key
+//     admin.initializeApp({
+//       credential: admin.credential.cert(serviceAccount)
+//     });
+//     console.log("Firebase Admin SDK initialized.");
+// } catch (error) {
+//     console.error("Failed to initialize Firebase Admin SDK:", error.message);
+// }
 
 /**
  * Sends a push notification to a list of device tokens.
