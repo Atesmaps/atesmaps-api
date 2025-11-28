@@ -1,0 +1,5 @@
+{
+  "new_obs_title": "🔍 Nouvelle observation!",
+  "new_obs_body": "{{title}} @ {{location}} - \n Consulte-la sur la carte !",
+  "check_map": "Consulte-la sur la carte !"
+}

@@ -11,6 +11,10 @@ const DeviceTokenSchema = new Schema({
         type: String,
         required: true,
         enum: ['ios', 'android']
+    },
+    language: { 
+        type: String, 
+        default: 'en' 
     }
 }, {_id: false});
 
@@ -119,14 +123,7 @@ const userSchema = new Schema({
             unique: true,
         },
     },
-    // pro: {
-    //     type: Boolean, 
-    //     default: false
-    // },
-    // expiresAt:{
-    //     type: Number,
-    //     required: false
-    // },
+   
     googleUserId: String,
     appleUserId: String,
     refreshToken: String,
@@ -140,11 +137,10 @@ const userSchema = new Schema({
         ref: "Track",
         required: false
     }],
-    // subscriptions: [{
-    //     type: Schema.Types.ObjectId,
-    //     ref: "Subscription",
-    //     required: false
-    // }]
+    unreadCount: { 
+        type: Number, 
+        default: 0 
+    },
     deviceTokens: [DeviceTokenSchema]
 },
 {

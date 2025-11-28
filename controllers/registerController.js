@@ -82,7 +82,8 @@ const handleNewUser = async (req, res) => {
                 "UserInfo": {
                     "username": user.username,
                     "email": user.email,
-                    "roles": roles
+                    "roles": roles,
+                    "id": user._id
                 }
             },
             process.env.ACCESS_TOKEN_SECRET,

@@ -19,7 +19,7 @@ try {
  * @param {string} body - The notification body.
  * @param {object} data - Custom data to send for deep-linking (e.g., { observationId: '123' }).
  */
-async function sendNotification(targetTokens, title, body, data = {}) {
+async function sendNotification(targetTokens, title, body, data = {}, badgeCount = 1) {
     if (!targetTokens || targetTokens.length === 0) {
         console.log("No target tokens provided. Skipping notification.");
         return;
@@ -38,15 +38,17 @@ async function sendNotification(targetTokens, title, body, data = {}) {
             payload: {
                 aps: {
                     sound: 'default', // Plays the default sound
-                    badge: 1, // Or logic to calculate badge count
+                    badge: badgeCount, // Or logic to calculate badge count
                 },
             },
         },
         android: { // Android specific
+            priority: 'high',
             notification: {
                 sound: 'default',
                 // This MUST match the Channel ID you create on the client (React Native)
-                channel_id: 'atesmaps-notifications', 
+                channel_id: 'atesmaps-channel-id', 
+                notification_count: badgeCount
             },
         },
     };

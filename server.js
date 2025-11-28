@@ -27,11 +27,11 @@ app.use(credentials);
 // Cross Origin Resource Sharing
 app.use(cors(corsOptions));
 
-// built-in middleware to handle urlencoded form data
-app.use(express.urlencoded({ extended: false }));
-
 // built-in middleware for json 
 app.use(express.json());
+
+// built-in middleware to handle urlencoded form data
+app.use(express.urlencoded({ extended: false }));
 
 //middleware for cookies
 app.use(cookieParser());
@@ -40,9 +40,7 @@ app.use(cookieParser());
 app.use('/', express.static(path.join(__dirname, '/public')));
 
 // routes
-
 app.use('/', require('./routes/root'));
-
 app.use('/register', require('./routes/register'));
 app.use('/auth', require('./routes/auth'));
 app.use('/refresh', require('./routes/refresh'));
