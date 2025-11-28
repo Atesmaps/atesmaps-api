@@ -1,5 +1,5 @@
 {
-  "new_obs_title": "Nueva Observación de {{user}}",
-  "new_obs_body": "🔍 {{title}} @ {{location}} - ¡Míralo en el mapa!",
+  "new_obs_title": "🔍 Nueva Observación!",
+  "new_obs_body": "{{title}} @ {{location}} - \n¡Míralo en el mapa!",
   "check_map": "¡Míralo en el mapa!"
 }

@@ -7,18 +7,30 @@ admin.initializeApp({
 });
 
 // ⚠️ PASTE YOUR DEVICE TOKEN HERE
-const registrationToken = 'c-jO0OqJQRarqsf2ZxDJjo:APA91bHdDXMMlOuZMMA-lLkc2yM2bDQzIWAa13qS0T8oIjaGqNmcMx8VNDy-fNtfuoMKRExvFAxfEkVdu47ro0lpVEiT3qESVBE-biSmv_HMn2bzXY5L0gw'; 
+const androidRegistrationToken = 'fU72nMdvQZeC0kolMp1wnv:APA91bHuHaK-zza-gMFKV3Sze88LIHtAycw8GRhxaCT2KwvcB3zEdSjmDQ8r_HZRJME6WekVBFGtXWJC9Bkee_NSZwTXZWOgqPP2X1Vd5FgbmYbmgjMWe1Q'; 
+const iosRegistrationToken ='cU-E5yMJekwao9s3CPCCy6:APA91bGP0PISUBR-eEQF5Erf87Qin-E5jyBxfPnciiTH7tXGQRxekVOrrrXc0XqGxYmC9vAVNhVomttld4K8Nvggq83kUgMJVioK-CAASyAAAemxoxuQND8'
 
 const message = {
   notification: {
-    title: 'Backend Test',
-    body: 'This is coming from Node.js!'
+    title:'🔍 Nueva Observación',
+    body: 'Pas de la casa @ Andorra -\n ¡Míralo en el mapa!'
   },
-  token: registrationToken,
+  token: androidRegistrationToken,
+   apns: {
+            payload: {
+                aps: {
+                    sound: 'default', 
+                    badge: 1, 
+                },
+            },
+        },
   android: {
-      notification: {
-          channel_id: 'atesmaps-channel-id' // Must match your App.tsx config
-      }
+        priority: 'high',
+        notification: {
+            sound: 'default',
+            channel_id: 'atesmaps-channel-id', 
+            notification_count: 1
+        },
   }
 };
 
