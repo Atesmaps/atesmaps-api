@@ -209,7 +209,7 @@ const deleteObservation = async (req, res) => {
 
 const getObservation = async (req, res) => {
     if (!req?.params?.id) return res.status(400).json({ "message": 'Observation ID required' });
-    const observation = await Observation.findOne({ _id: req.params.id }).exec();
+    const observation = await Observation.findOne({ _id: req.params.id }).populate('user').exec();
     if (!observation) {
         return res.status(204).json({ 'message': `Observation ID ${req.params.id} not found` });
     }
