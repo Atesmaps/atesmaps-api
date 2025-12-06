@@ -7,7 +7,7 @@ admin.initializeApp({
 });
 
 // ⚠️ PASTE YOUR DEVICE TOKEN HERE
-const androidRegistrationToken = 'fU72nMdvQZeC0kolMp1wnv:APA91bHuHaK-zza-gMFKV3Sze88LIHtAycw8GRhxaCT2KwvcB3zEdSjmDQ8r_HZRJME6WekVBFGtXWJC9Bkee_NSZwTXZWOgqPP2X1Vd5FgbmYbmgjMWe1Q'; 
+const androidRegistrationToken = 'ctTt8qCuQQyP3twtr3lIcb:APA91bHlSIeXdWIaMxE0PE5lKP6NeNdQ-n7XclkLAF6a-ejCarD-EzUmJj-FMeI_NXGiS09ZKfxU7ZijshOoXmLViKg9XHHeVSkr1T5ksNy14vvyIufU5xI'; 
 const iosRegistrationToken ='cf2Zc0LtS09EgbW00elZ98:APA91bG_zmvwGQiOI5A_B5zxGBZ0cCX9vcpcT0vX-kkFqZJGGoEOcbf7mvGSzRmPtcbpQSXU4nqs84hljcBilI82XSRF8xUivOU-eZgUvVM2gzDal5r2WgQ';
 
 
@@ -18,7 +18,7 @@ const message = {
     body: 'Pas de la casa @ Andorra -\n ¡Míralo en el mapa!',
   },
   data: { observationId: '69299adb583fd03ffb30d7f5' }, 
-  token: iosRegistrationToken,
+  token: androidRegistrationToken,
    apns: {
             payload: {
                 aps: {
