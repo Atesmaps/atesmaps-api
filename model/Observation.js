@@ -428,6 +428,9 @@ const observationSchema = new Schema({
                 compresionTest:{
                     type: Number
                 },
+                customCompresionTest: {
+                    type: String
+                },
                 extensionTest: {
                     type: Number
                 },
@@ -441,7 +444,8 @@ const observationSchema = new Schema({
                 },
                 fractureDepth:{
                     type: String
-                },fractureTypeCt: {
+                },
+                fractureTypeCt: {
                     type_1: {type: Boolean},
                     type_2: {type: Boolean},
                     type_3: {type: Boolean},

@@ -141,10 +141,81 @@ const userSchema = new Schema({
         type: Number, 
         default: 0 
     },
-    deviceTokens: [DeviceTokenSchema]
+    terrainExperience: { type: Number, default: -1 },
+    avalancheExperience: { type: Number, default: -1 },
+    deviceTokens: [DeviceTokenSchema],
 },
 {
   timestamps: true
+});
+
+const calculateScores = (data) => {
+    let terrainScore = 0;
+    
+    switch (data.terrainType) {
+        case 1: terrainScore = 0.5; break;
+        case 2: terrainScore = 1; break;
+        case 3: terrainScore = 3; break;
+        default: terrainScore = 0;
+    }
+
+    // Calculate Ta
+    const userTa = (data.professionalOrientation - 1) + 
+                   (data.snowEducationLevel - 1) + 
+                   (data.snowExperienceLevel * terrainScore);
+
+    // Calculate Ra
+    const userRa = data.avalanchExposure + data.conditionsType;
+
+    return { terrainExperience: userTa, avalancheExperience: userRa };
+};
+
+userSchema.pre('save', function(next) {
+    const scores = calculateScores(this);
+    
+    this.terrainExperience = scores.terrainExperience;
+    this.avalancheExperience = scores.avalancheExperience;
+    
+    next();
+});
+
+userSchema.pre(['findOneAndUpdate', 'updateOne'], async function(next) {
+    // 'this' refers to the Query, not the document.
+    const updateData = this.getUpdate();
+
+    // Only calculate if relevant fields are changing
+    if (updateData.terrainType || updateData.professionalOrientation || 
+        updateData.snowEducationLevel || updateData.snowExperienceLevel || 
+        updateData.avalanchExposure || updateData.conditionsType) {
+        
+        try {
+            // We need the current document from DB to merge with updates
+            // (in case the update only changes 1 field, we need the other 5 to calculate)
+            const docToUpdate = await this.model.findOne(this.getQuery());
+
+            if (docToUpdate) {
+                // Merge existing data with new updates
+                // Note: handles if updateData has $set operator or direct fields
+                const dataToCalculate = { 
+                    ...docToUpdate.toObject(), 
+                    ...(updateData.$set || updateData) 
+                };
+                
+                const scores = calculateScores(dataToCalculate);
+
+                // Inject the calculated scores into the update
+                if (updateData.$set) {
+                    updateData.$set.terrainExperience = scores.terrainExperience;
+                    updateData.$set.avalancheExperience = scores.avalancheExperience;
+                } else {
+                    this.set({ terrainExperience: scores.terrainExperience, avalancheExperience: scores.avalancheExperience });
+                }
+            }
+        } catch (err) {
+            return next(err);
+        }
+    }
+    next();
 });
 
 userSchema.methods.generatePasswordReset = function() {
