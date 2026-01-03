@@ -434,6 +434,9 @@ const observationSchema = new Schema({
                 extensionTest: {
                     type: Number
                 },
+                extensionTestResistance: {
+                    type: Number
+                },
                 fractureType: {
                     type_1: {type: Boolean},
                     type_2: {type: Boolean},
@@ -442,8 +445,17 @@ const observationSchema = new Schema({
                     type_5: {type: Boolean},
                     type_6: {type: Boolean},
                 },
+                customCompresionTest: {
+                    type: String
+                },
+                customExtensionTestResistance: {
+                    type: String
+                },
                 fractureDepth:{
                     type: String
+                },
+                 fractureTypeCtValue: {
+                    type: Number
                 },
                 fractureTypeCt: {
                     type_1: {type: Boolean},
