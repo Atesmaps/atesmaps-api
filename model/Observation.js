@@ -474,6 +474,9 @@ const observationSchema = new Schema({
                 weakLayerHardness:{
                     type: Number
                 },
+                weakLayerHumidity:{
+                    type: Number
+                },
                 snowHumidity:{
                     type: Number
                 },
