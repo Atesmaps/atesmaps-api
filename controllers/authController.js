@@ -285,15 +285,15 @@ const handleAppleLogin = async (req, res) => {
 }
 
 const showVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.0.4' });
+    res.status(200).json({ 'version': '1.0.5' });
 }
 
 const showIosVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.2.0' });
+    res.status(200).json({ 'version': '1.2.3' });
 }
 
 const showAndroidVersion = (req, res) => {
-    res.status(200).json({ 'version': '3.2.0' });
+    res.status(200).json({ 'version': '3.2.4' });
 }
 
 module.exports = { handleLogin, handleGoogleLogin, handleAppleLogin, showVersion, showIosVersion, showAndroidVersion};
