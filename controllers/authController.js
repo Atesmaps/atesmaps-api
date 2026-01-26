@@ -285,7 +285,7 @@ const handleAppleLogin = async (req, res) => {
 }
 
 const showVersion = (req, res) => {
-    res.status(200).json({ 'version': '1.0.4' });
+    res.status(200).json({ 'version': '1.0.5' });
 }
 
 const showIosVersion = (req, res) => {
