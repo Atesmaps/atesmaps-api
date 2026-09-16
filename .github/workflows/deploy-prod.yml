@@ -10,6 +10,14 @@ concurrency:
   group: deploy-prod
   cancel-in-progress: true
 
+env:
+  APPLICATION: atesmaps
+  ECR_REPOSITORY: atesmaps-prod-api
+  ENVIRONMENT: prod
+  AWS_ACCOUNT_ID: '919542772080'
+  AWS_IAM_ROLE_NAME: atesmaps-prod-api-gha-role
+  AWS_REGION: eu-west-1
+
 permissions:
   contents: read
   id-token: write
@@ -18,54 +26,79 @@ jobs:
   build-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Git Checkout
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v6
         with:
-          fetch-depth: 0
-      - name: Get latest tag
-        id: latest_tag
-        uses: WyriHaximus/github-action-get-previous-tag@v1
-      - name: Create env file
+          role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_IAM_ROLE_NAME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Get commit SHA
+        id: commit-sha
         run: |
-          echo "ACCESS_TOKEN_SECRET=${{ secrets.API_ACCESS_TOKEN_SECRET }}" > .env
-          echo "REFRESH_TOKEN_SECRET=${{ secrets.API_REFRESH_TOKEN_SECRET }}" >> .env
-          echo "DATABASE_URI=\"${{ secrets.API_DATABASE_URI }}\"" >> .env
-          echo "GOOGLE_ANDROID_CLIENT_ID=\"${{ secrets.GOOGLE_ANDROID_CLIENT_ID }}\"" >> .env
-          echo "GOOGLE_IOS_CLIENT_ID=\"${{ secrets.GOOGLE_IOS_CLIENT_ID }}\"" >> .env
-          echo "MAILER_SMTP=${{ secrets.API_MAILER_SMTP }}" >> .env
-          echo "MAILER_USER=${{ secrets.API_MAILER_USER }}" >> .env
-          echo "MAILER_PASS=${{ secrets.API_MAILER_PASS }}" >> .env
-          echo "LAUEGI_API_KEY=${{ secrets.API_LAUEGI_KEY }}" >> .env
-          echo "FIREBASE_SERVICE_ACCOUNT_BASE64=${{ secrets.FIREBASE_SERVICE_ACCOUNT_BASE64 }}" >> .env
-      - name: Build
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          file: etc/docker/Dockerfile
-          push: false
-          tags: |
-            atesmaps-api:${{ steps.latest_tag.outputs.tag }}
-      - name: Export Docker image
+          echo "tag=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Get EC2 instance ID
+        id: get_instance_id
         run: |
-          docker save atesmaps-api:${{ steps.latest_tag.outputs.tag }} | gzip > ./atesmaps-api.tar.gz
-      - name: Push Docker image artifact
-        uses: appleboy/scp-action@v0.1.4
-        with:
-          host: ${{ secrets.SSH_PROD_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          source: ./atesmaps-api.tar.gz
-          target: /tmp
-      - name: Run new release
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SSH_PROD_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            gunzip -c /tmp/atesmaps-api.tar.gz | docker load
-            docker stop atesmaps-api || true && docker rm atesmaps-api || true
-            docker run -d --restart=always -p 9500:3500 --name atesmaps-api atesmaps-api:${{ steps.latest_tag.outputs.tag }}
-            rm -f /tmp/atesmaps-api.tar.gz
+          INSTANCE_ID=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=${{ env.APPLICATION }}-${{ env.ENVIRONMENT }}" "Name=instance-state-name,Values=running" \
+            --query "Reservations[0].Instances[0].InstanceId" \
+            --output text)
+
+          echo "Instance ID: $INSTANCE_ID"
+          echo "instance_id=$INSTANCE_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push image to Amazon ECR
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ env.ECR_REPOSITORY }}
+          IMAGE_TAG: ${{ steps.commit-sha.outputs.tag }}
+        run: |
+          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest -f etc/docker/Dockerfile .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:latest
+
+      - name: Create env file from SSM Parameter Store
+        run: |
+          SSM_PREFIX="/${{ env.APPLICATION }}/${{ env.ENVIRONMENT }}/api"
+
+          aws ssm get-parameters-by-path \
+            --path "$SSM_PREFIX" \
+            --with-decryption \
+            --recursive \
+            --region ${{ env.AWS_REGION }} \
+            --query "Parameters[*].{Name:Name,Value:Value}" \
+            --output json \
+          | jq -r '.[] | (.Name | ltrimstr("'"$SSM_PREFIX"'/")) + "=" + .Value' \
+          > .env.atesmaps-api
+
+          echo "IMAGE_TAG=${{ steps.commit-sha.outputs.tag }}" >> .env.atesmaps-api
+
+      - name: Encode environment file to deploy
+        run: |
+          base64 .env.atesmaps-api > .env.atesmaps-api-b64.txt
+
+      - name: Deploy via SSM
+        run: |
+          aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --targets "Key=instanceids,Values=${{ steps.get_instance_id.outputs.instance_id }}" \
+            --comment "Deploy atesmaps api" \
+            --parameters 'commands=[
+              "rm -f /opt/atesmaps/.env.atesmaps-api",
+              "echo \"'"$(cat .env.atesmaps-api-b64.txt)"'\" | base64 -d > /opt/atesmaps/.env.atesmaps-api",
+              "cd /opt/atesmaps",
+              "aws ecr get-login-password --region ${{ env.AWS_REGION }} | docker login --username AWS --password-stdin ${{ env.AWS_ACCOUNT_ID }}.dkr.ecr.${{ env.AWS_REGION }}.amazonaws.com",
+              "docker compose pull atesmaps-api",
+              "docker compose rm -s -f atesmaps-api",
+              "docker compose up -d --no-deps atesmaps-api",
+              "docker image prune -a -f"
+            ]' \
+            --region ${{ env.AWS_REGION }}
