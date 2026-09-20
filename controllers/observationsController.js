@@ -4,6 +4,8 @@ const GeoJSON = require('geojson');
 const proj4 = require('proj4');
 const { format } = require('date-fns');
 const { sendNotification } = require('../services/notificationService');
+const { uploadObservationImage } = require('../services/assetsService');
+const { ALLOWED_MIME_TYPES } = require('../middleware/upload');
 const { getClosestRegion } = require('../helpers/locationHelper');
 const { t } = require('../helpers/translationHelper');
 
@@ -216,6 +218,44 @@ const getObservation = async (req, res) => {
     res.json(observation);
 }
 
+const uploadObservationImages = async (req, res) => {
+    if (!req?.params?.id) return res.status(400).json({ 'message': 'Observation ID required' });
+
+    const observation = await Observation.findOne({ _id: req.params.id }).exec();
+    if (!observation) {
+        return res.status(204).json({ 'message': `Observation ID ${req.params.id} not found` });
+    }
+
+    if (observation.user.toString() !== req.userId) {
+        return res.status(403).json({ 'message': 'You can only upload images to your own observations' });
+    }
+
+    if (!req.files?.length) {
+        return res.status(400).json({ 'message': 'No images provided' });
+    }
+
+    if (!observation.directoryId) {
+        observation.directoryId = observation._id.toString();
+    }
+
+    try {
+        const filenames = await Promise.all(req.files.map((file) => uploadObservationImage({
+            directoryId: observation.directoryId,
+            buffer: file.buffer,
+            contentType: file.mimetype,
+            extension: ALLOWED_MIME_TYPES[file.mimetype],
+        })));
+
+        observation.images.push(...filenames);
+        const result = await observation.save();
+
+        res.status(201).json({ directoryId: result.directoryId, images: result.images });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ 'message': 'Error uploading observation images' });
+    }
+}
+
 const getFeatures = async (req, res) => {
     const box = [[parseFloat(req.query.transformedbbox[0]),parseFloat(req.query.transformedbbox[1])],[parseFloat(req.query.transformedbbox[2]),parseFloat(req.query.transformedbbox[3])]];
     // const box = [[parseFloat(req.query.transformedbbox[3]),parseFloat(req.query.transformedbbox[2])],[parseFloat(req.query.transformedbbox[1]),parseFloat(req.query.transformedbbox[0])]];
@@ -297,5 +337,6 @@ module.exports = {
     updateObservation,
     deleteObservation,
     getObservation,
+    uploadObservationImages,
     getFeatures
 }
